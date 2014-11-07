@@ -1,0 +1,1120 @@
+From 2c52d8da189094429712642db2babd939bd53d8f Mon Sep 17 00:00:00 2001
+From: Cody Collins <cnc34@pitt.edu>
+Date: Fri, 28 Mar 2014 20:38:18 -0400
+Subject: [PATCH 1/2] Submission commit
+
+---
+ .htaccess                             |    2 +-
+ app/.htaccess                         |    2 +-
+ app/Config/core.php                   |    4 +-
+ app/Config/database.php               |   85 +++++++++++++++++++++++++
+ app/Controller/AppController.php      |   19 +++++-
+ app/Controller/CommentsController.php |  100 +++++++++++++++++++++++++++++
+ app/Controller/MessagesController.php |   68 ++++++++++++++++++++
+ app/Controller/ReviewsController.php  |  111 +++++++++++++++++++++++++++++++++
+ app/Controller/UsersController.php    |   41 ++++++++++++
+ app/Model/Comment.php                 |    7 ++
+ app/Model/Message.php                 |   16 +++++
+ app/Model/Review.php                  |   13 ++++
+ app/Model/User.php                    |   30 +++++++++
+ app/View/Comments/add.ctp             |    6 ++
+ app/View/Comments/edit.ctp            |    8 +++
+ app/View/Comments/index.ctp           |    3 +
+ app/View/Messages/add.ctp             |    7 ++
+ app/View/Messages/delete.ctp          |    3 +
+ app/View/Messages/index.ctp           |   31 +++++++++
+ app/View/Messages/view.ctp            |    8 +++
+ app/View/Reviews/add.ctp              |    9 +++
+ app/View/Reviews/edit.ctp             |    8 +++
+ app/View/Reviews/index.ctp            |   48 ++++++++++++++
+ app/View/Reviews/view.ctp             |   26 ++++++++
+ app/View/Users/add.ctp                |    6 ++
+ app/View/Users/index.ctp              |   34 ++++++++++
+ app/View/Users/login.ctp              |   13 ++++
+ app/View/Users/messages.ctp           |   31 +++++++++
+ app/webroot/.htaccess                 |    2 +-
+ db_setup.sql                          |   58 +++++++++++++++++
+ 30 files changed, 793 insertions(+), 6 deletions(-)
+ create mode 100644 app/Config/database.php
+ create mode 100644 app/Controller/CommentsController.php
+ create mode 100644 app/Controller/MessagesController.php
+ create mode 100644 app/Controller/ReviewsController.php
+ create mode 100644 app/Controller/UsersController.php
+ create mode 100644 app/Model/Comment.php
+ create mode 100644 app/Model/Message.php
+ create mode 100644 app/Model/Review.php
+ create mode 100644 app/Model/User.php
+ create mode 100644 app/View/Comments/add.ctp
+ create mode 100644 app/View/Comments/edit.ctp
+ create mode 100644 app/View/Comments/index.ctp
+ create mode 100644 app/View/Messages/add.ctp
+ create mode 100644 app/View/Messages/delete.ctp
+ create mode 100644 app/View/Messages/index.ctp
+ create mode 100644 app/View/Messages/view.ctp
+ create mode 100644 app/View/Reviews/add.ctp
+ create mode 100644 app/View/Reviews/edit.ctp
+ create mode 100644 app/View/Reviews/index.ctp
+ create mode 100644 app/View/Reviews/view.ctp
+ create mode 100644 app/View/Users/add.ctp
+ create mode 100644 app/View/Users/index.ctp
+ create mode 100644 app/View/Users/login.ctp
+ create mode 100644 app/View/Users/messages.ctp
+ create mode 100644 db_setup.sql
+
+diff --git a/.htaccess b/.htaccess
+index 4eef46e..0da58b7 100644
+--- a/.htaccess
++++ b/.htaccess
+@@ -1,6 +1,6 @@
+ <IfModule mod_rewrite.c>
+    RewriteEngine on
+-   RewriteBase /~YOUR_PITT_ID/PATH/TO/CAKEPHP
++   RewriteBase /~cnc34/cakephp
+    RewriteRule    ^$ app/webroot/    [L]
+    RewriteRule    (.*) app/webroot/$1 [L]
+ </IfModule>
+diff --git a/app/.htaccess b/app/.htaccess
+index 4d4c95f..8b7a0da 100644
+--- a/app/.htaccess
++++ b/app/.htaccess
+@@ -1,6 +1,6 @@
+ <IfModule mod_rewrite.c>
+     RewriteEngine on
+-    RewriteBase /~YOUR_PITT_ID/PATH/TO/CAKEPHP
++    RewriteBase /~cnc34/cakephp
+     RewriteRule    ^$    webroot/    [L]
+     RewriteRule    (.*) webroot/$1    [L]
+ </IfModule>
+diff --git a/app/Config/core.php b/app/Config/core.php
+index 1bf3ba4..bf642f7 100644
+--- a/app/Config/core.php
++++ b/app/Config/core.php
+@@ -222,12 +222,12 @@
+ /**
+  * A random string used in security hashing methods.
+  */
+-	Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
++	Configure::write('Security.salt', 'DYc93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
+ 
+ /**
+  * A random numeric string (digits only) used to encrypt/decrypt strings.
+  */
+-	Configure::write('Security.cipherSeed', '76859309657453542496749683645');
++	Configure::write('Security.cipherSeed', '76059309657453542496749683645');
+ 
+ /**
+  * Apply timestamps with the last modified time to static assets (js, css, images).
+diff --git a/app/Config/database.php b/app/Config/database.php
+new file mode 100644
+index 0000000..04120d1
+--- /dev/null
++++ b/app/Config/database.php
+@@ -0,0 +1,85 @@
++<?php
++/**
++ *
++ *
++ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
++ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
++ *
++ * Licensed under The MIT License
++ * For full copyright and license information, please see the LICENSE.txt
++ * Redistributions of files must retain the above copyright notice.
++ *
++ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
++ * @link          http://cakephp.org CakePHP(tm) Project
++ * @package       app.Config
++ * @since         CakePHP(tm) v 0.2.9
++ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
++ */
++
++/**
++ * Database configuration class.
++ *
++ * You can specify multiple configurations for production, development and testing.
++ *
++ * datasource => The name of a supported datasource; valid options are as follows:
++ *  Database/Mysql - MySQL 4 & 5,
++ *  Database/Sqlite - SQLite (PHP5 only),
++ *  Database/Postgres - PostgreSQL 7 and higher,
++ *  Database/Sqlserver - Microsoft SQL Server 2005 and higher
++ *
++ * You can add custom database datasources (or override existing datasources) by adding the
++ * appropriate file to app/Model/Datasource/Database. Datasources should be named 'MyDatasource.php',
++ *
++ *
++ * persistent => true / false
++ * Determines whether or not the database should use a persistent connection
++ *
++ * host =>
++ * the host you connect to the database. To add a socket or port number, use 'port' => #
++ *
++ * prefix =>
++ * Uses the given prefix for all the tables in this database. This setting can be overridden
++ * on a per-table basis with the Model::$tablePrefix property.
++ *
++ * schema =>
++ * For Postgres/Sqlserver specifies which schema you would like to use the tables in.
++ * Postgres defaults to 'public'. For Sqlserver, it defaults to empty and use
++ * the connected user's default schema (typically 'dbo').
++ *
++ * encoding =>
++ * For MySQL, Postgres specifies the character encoding to use when connecting to the
++ * database. Uses database default not specified.
++ *
++ * unix_socket =>
++ * For MySQL to connect via socket specify the `unix_socket` parameter instead of `host` and `port`
++ *
++ * settings =>
++ * Array of key/value pairs, on connection it executes SET statements for each pair
++ * For MySQL : http://dev.mysql.com/doc/refman/5.6/en/set-statement.html
++ * For Postgres : http://www.postgresql.org/docs/9.2/static/sql-set.html
++ * For Sql Server : http://msdn.microsoft.com/en-us/library/ms190356.aspx
++ */
++class DATABASE_CONFIG {
++
++	public $default = array(
++		'datasource' => 'Database/Mysql',
++		'persistent' => false,
++		'host' => '127.0.0.1',
++		'login' => 'cnc34',
++		'password' => 'ChangeMe77839',
++		'database' => 'cnc34db',
++		'prefix' => '',
++		'encoding' => 'utf8',
++	);
++
++	public $test = array(
++		'datasource' => 'Database/Mysql',
++		'persistent' => false,
++		'host' => '127.0.0.1',
++		'login' => 'cnc34',
++		'password' => 'ChangeMe77839',
++		'database' => 'cnc34db',
++		'prefix' => '',
++		'encoding' => 'utf8',
++	);
++}
+diff --git a/app/Controller/AppController.php b/app/Controller/AppController.php
+index a827969..469df7e 100644
+--- a/app/Controller/AppController.php
++++ b/app/Controller/AppController.php
+@@ -1,3 +1,5 @@
++
++
+ <?php
+ /**
+  * Application level Controller
+@@ -30,5 +32,20 @@ App::uses('Controller', 'Controller');
+  * @package		app.Controller
+  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
+  */
+-class AppController extends Controller {
++class AppController extends Controller 
++{
++	public $components = array(
++		'Session',
++		'Auth' => array(
++			'loginRedirect' => 
++				array('controller' => 'reviews', 'action' => 'index'),
++			'logoutRedirect' => 
++				array('controller' => 'reviews','action' => 'index'),
++			'authenticate' => array('Form' => array('passwordHasher' => 'Blowfish'))
++			)
++	);
++	public function beforeFilter() {
++		$this->Auth->allow();
++}
++
+ }
+diff --git a/app/Controller/CommentsController.php b/app/Controller/CommentsController.php
+new file mode 100644
+index 0000000..6e2bcac
+--- /dev/null
++++ b/app/Controller/CommentsController.php
+@@ -0,0 +1,100 @@
++<?php
++	class CommentsController extends AppController
++	{
++		public $helpers = array('Html','Form','Session');
++		public $components = array('Session');
++		public function index()
++		{
++			
++		}
++		 public function edit($id = null,$reviewid=null) {
++			if (!$id) {
++	        		throw new NotFoundException(__('Invalid Comment'));
++	    		}
++	
++	    		$comment = $this->Comment->findById($id);
++	    		if (!$comment) {
++	        		throw new NotFoundException(__('Invalid Comment'));
++	    		}
++	
++			$userid = $this->Auth->user('id');
++			if ($comment['Comment']['user_id'] != $userid)
++			{
++				$this->Session->setFlash(__('You can not edit that comment.'));
++				return $this->redirect(array('controller'=>'reviews','action' => 'view',$reviewid));
++			}
++	
++			if ($this->request->is('post')) {
++	        		$this->Comment->id = $id;
++	        		if ($this->Comment->save($this->request->data)) {
++	            			$this->Session->setFlash(__('Your comment has been updated.'));
++	            			return $this->redirect(array('controller'=>'reviews','action' => 'view',$reviewid));
++	        		}
++	        		$this->Session->setFlash(__('Unable to update your comment.'));
++	    		}
++	
++			if (!$this->request->data) {
++	     			$this->request->data = $comment;
++	    		}
++	    	unset($id);
++	    	unset($comment);
++	    	unset($userid);
++	    	unset($reviewid);
++		}
++		public function delete($id=null,$revid=null)
++		{
++			if (!$id) {
++	        		throw new NotFoundException(__('Invalid comment'));
++	    		}
++	
++	    		$comment = $this->Comment->findById($id);
++	    		if (!$comment) {
++	        		throw new NotFoundException(__('Invalid comment'));
++	    		}
++					$userid = $this->Auth->user('id');
++				if ($comment['Comment']['user_id'] != $userid)
++				{
++					$this->Session->setFlash(__('You can not delete that comment.'));
++					return $this->redirect(array('controller'=>'reviews','action' => 'view',$revid));
++				}
++	    		if ($this->request->is('post')) {
++	        		throw new MethodNotAllowedException();
++	    		}
++	
++			if ($this->Comment->delete($id)) {
++	        		$this->Session->setFlash(
++	            		__('The comment with id: %s has been deleted.', h($id))
++	        		);
++	        		return $this->redirect(array('controller'=>'reviews','action' => 'view',$revid));
++	    		}
++	    		unset($comment);
++	    		unset($id);
++	    		unset($userid);
++		}
++		public function add($reviewid=null)
++		{
++				$userid = $this->Auth->user('id');
++				$username = $this->Auth->user('username');
++				if ($userid) {
++	        		if ($this->request->is('post')) {
++							$this->request->data['Comment']['user_id'] = $userid;
++							$this->request->data['Comment']['username'] = $username;
++							$this->request->data['Comment']['review_id']=$reviewid;
++	            			$this->Comment->create();
++	            			if ($this->Comment->save($this->request->data)) {
++	                			$this->Session->setFlash(__('Your comment has been saved.'));
++	                			return $this->redirect(array('controller' => 'reviews','action' => 'view',$reviewid));
++	            			}
++	            			$this->Session->setFlash(__('Unable to add your comment.'));
++	        		}
++				}
++				else {
++					$this->Session->setFlash(__('You must be logged in to add a commentreview.'));
++					return $this->redirect(array('action' => 'index'));
++				}
++				unset($userid);
++				unset($username);
++				
++		}
++	}
++?>
+\ No newline at end of file
+diff --git a/app/Controller/MessagesController.php b/app/Controller/MessagesController.php
+new file mode 100644
+index 0000000..01a5373
+--- /dev/null
++++ b/app/Controller/MessagesController.php
+@@ -0,0 +1,68 @@
++<?php
++	class MessagesController extends AppController
++	{
++		public $helpers = array('Html','Form','Session');
++		public $components = array('Session');
++		
++		public function index()
++		{
++			$userid = $this->Auth->user('id');
++			$username = $this->Auth->user('username');
++			if($userid&&$username)
++			{
++				$messages = $this->Message->findAllByUserId($userid);
++				$this->set('messages',$messages);
++				$this->set('username',$username);
++			}
++			else{
++				$this->Session->setFlash(__('You must be logged in to see your messages.'));
++				return $this->redirect(array('action' => 'index'));
++			}
++		}
++		public function add($to_id=null)
++		{
++			$user = $this->Auth->user('id');
++			if ($user) {
++        		if ($this->request->is('post')) {
++						$this->request->data['Message']['from_user'] = $user;
++						$this->request->data['Message']['user_id']=$to_id;
++            			$this->Message->create();
++            			if ($this->Message->save($this->request->data)) {
++                			$this->Session->setFlash(__('Your message has been saved.'));
++                			return $this->redirect(array('controller' => 'messages','action' => 'index'));
++            			}
++            			$this->Session->setFlash(__('Unable to add your review.'));
++        		}
++			}
++			else {
++				$this->Session->setFlash(__('You must be logged in to send a message.'));
++				return $this->redirect(array('action' => 'index'));
++			}
++		}
++		public function view($id=null)
++		{
++			if (!$id) {
++            throw new NotFoundException(__('Invalid message'));
++        	}
++
++    	  	$message = $this->Message->findById($id);
++    	  	if (!$message) {
++        	    throw new NotFoundException(__('Invalid message'));
++        	}
++    		 $this->set('message', $message);	
++		}
++		public function delete($id=null) {
++	    		if ($this->request->is('post')) {
++	        		throw new MethodNotAllowedException();
++	    		}
++	
++			if ($this->Message->delete($id)) {
++	        		$this->Session->setFlash(
++	            		__('The message with id: %s has been deleted.', h($id))
++	        		);
++	        		return $this->redirect(array('controller' => 'messages','action' => 'index'));
++	    		}
++		}			
++		
++	}
++?>
+\ No newline at end of file
+diff --git a/app/Controller/ReviewsController.php b/app/Controller/ReviewsController.php
+new file mode 100644
+index 0000000..12a625c
+--- /dev/null
++++ b/app/Controller/ReviewsController.php
+@@ -0,0 +1,111 @@
++<?php
++	class ReviewsController extends AppController{
++		public $helpers = array('Html', 'Form');
++		public function index()
++		{
++			$this->set('reviews',$this->Review->find('all'));
++			$this->set('userid', $this->Auth->user('id'));
++			$this->set('username', $this->Auth->user('username'));
++		}
++		
++		public function view($id=null)
++		{
++			if (!$id) {
++            throw new NotFoundException(__('Invalid review'));
++        	}
++
++    	  	$review = $this->Review->findById($id);
++    	  	
++    	  	if (!$review) {
++        	    throw new NotFoundException(__('Invalid review'));
++        	}
++    		 $this->set('review', $review);	
++    		 
++    		 unset($review);
++		}
++		public function add()
++		{
++			$userid = $this->Auth->user('id');
++			if ($userid) {
++        		if ($this->request->is('post')) {
++						$this->request->data['Review']['user_id'] = $userid;
++            			$this->Review->create();
++            			if ($this->Review->save($this->request->data)) {
++                			$this->Session->setFlash(__('Your review has been saved.'));
++                			return $this->redirect(array('action' => 'index'));
++            			}
++            			$this->Session->setFlash(__('Unable to add your review.'));
++        		}
++			}
++			else {
++				$this->Session->setFlash(__('You must be logged in to add a review.'));
++				return $this->redirect(array('action' => 'index'));
++			}
++			unset($userid);
++	    }
++	    
++	    public function edit($id = null) {
++			if (!$id) {
++	        		throw new NotFoundException(__('Invalid review'));
++	    		}
++	
++	    		$review = $this->Review->findById($id);
++	    		if (!$review) {
++	        		throw new NotFoundException(__('Invalid review'));
++	    		}
++	
++			$userid = $this->Auth->user('id');
++			if ($review['Review']['user_id'] != $userid)
++			{
++				$this->Session->setFlash(__('You can not edit that review.'));
++				return $this->redirect(array('action' => 'index'));
++			}
++	
++			if ($this->request->is(array('post', 'put'))) {
++	        		$this->Review->id = $id;
++	        		if ($this->Review->save($this->request->data)) {
++	            			$this->Session->setFlash(__('Your review has been updated.'));
++	            			return $this->redirect(array('action' => 'index'));
++	        		}
++	        		$this->Session->setFlash(__('Unable to update your review.'));
++	    		}
++	
++			if (!$this->request->data) {
++	     			$this->request->data = $review;
++	    		}
++	    	unset($userid);
++	    	unset($review);
++	    	unset($id);
++		}
++		public function delete($id=null) {
++				if (!$id) {
++	        		throw new NotFoundException(__('Invalid review'));
++	    		}
++	
++	    		$review = $this->Review->findById($id);
++	    		if (!$review) {
++	        		throw new NotFoundException(__('Invalid review'));
++	    		}
++					$userid = $this->Auth->user('id');
++				if ($review['Review']['user_id'] != $userid)
++				{
++					$this->Session->setFlash(__('You can not delete that review.'));
++					return $this->redirect(array('action' => 'index'));
++				}
++	    		if ($this->request->is('post')) {
++	        		throw new MethodNotAllowedException();
++	    		}
++	
++			if ($this->Review->delete($id)) {
++	        		$this->Session->setFlash(
++	            		__('The review with id: %s has been deleted.', h($id))
++	        		);
++	        		return $this->redirect(array('action' => 'index'));
++	    		}
++	    		unset($review);
++	    		unset($userid);
++	    		unset($id);
++		}			
++		
++	}
++?>
+\ No newline at end of file
+diff --git a/app/Controller/UsersController.php b/app/Controller/UsersController.php
+new file mode 100644
+index 0000000..e5bbe80
+--- /dev/null
++++ b/app/Controller/UsersController.php
+@@ -0,0 +1,41 @@
++<?php
++class UsersController extends AppController	{
++	public $helpers = array('Html', 'Form');
++	public $uses = array('User','Message');
++	public function   login() {
++		if ($this->request->is('post')) {
++			if ($this->Auth->login()) {
++				return   $this->redirect($this->Auth->redirect());
++							
++			}
++			$this->Session->setFlash(__('Invalid username or password, try again'));
++					
++		}
++			
++	}
++	public function   logout() {
++		return   $this->redirect($this->Auth->logout());
++			
++	}
++	public function   index() {
++		$this->User->recursive = 0;
++		$this->set('users', $this->paginate());
++			
++	}
++	public function   add() {
++		if ($this->request->is('post')) {
++			$this->User->create();
++			if ($this->User->save($this->request->data)) {
++				$this->Session->setFlash(__('Your user has been created'));
++				return   $this->redirect(array('controller' => 'users', 'action' => 'login'));
++							
++			}
++			$this->Session->setFlash(__('Unable to create a new user!'));
++					
++		}
++			
++	}
++	
++	
++}
++?>
+\ No newline at end of file
+diff --git a/app/Model/Comment.php b/app/Model/Comment.php
+new file mode 100644
+index 0000000..d01da36
+--- /dev/null
++++ b/app/Model/Comment.php
+@@ -0,0 +1,7 @@
++<?php
++	class Comment extends AppModel
++	{
++		public $belongsTo = array('User','Review');
++		public $validate = array('title' => array('rule' => 'notEmpty'), 'body' => array('rule' => 'notEmpty'),'username'=> array('rule' => 'notEmpty'));
++	}
++?>
+\ No newline at end of file
+diff --git a/app/Model/Message.php b/app/Model/Message.php
+new file mode 100644
+index 0000000..58b9c9f
+--- /dev/null
++++ b/app/Model/Message.php
+@@ -0,0 +1,16 @@
++<?php
++	class Message extends AppModel
++	{
++		public $belongsTo = array(
++	        'Sender' => array(
++	            'className' => 'User',
++	            'foreignKey' => 'from_user'
++	        ),
++	        'Recipient' => array(
++	            'className' => 'User',
++	            'foreignKey' => 'user_id'
++	        )
++	    );
++		public $validate = array('title' => array('rule' => 'notEmpty'), 'body' => array('rule' => 'notEmpty'));
++	}
++?>
+\ No newline at end of file
+diff --git a/app/Model/Review.php b/app/Model/Review.php
+new file mode 100644
+index 0000000..7e5552c
+--- /dev/null
++++ b/app/Model/Review.php
+@@ -0,0 +1,13 @@
++<?php
++	class Review extends AppModel
++	{
++		public $belongsTo = 'User';	
++		public $hasMany = 'Comment';
++		public $validate = array(
++        	'title' => array('rule' => 'notEmpty'),
++    	  	'body' => array('rule' => 'notEmpty'),
++    	  	'rating' => array('rule' => 'notEmpty'),
++    	  	'media' => array('rule' => 'notEmpty')
++    	);
++	}
++?>
+\ No newline at end of file
+diff --git a/app/Model/User.php b/app/Model/User.php
+new file mode 100644
+index 0000000..06ce259
+--- /dev/null
++++ b/app/Model/User.php
+@@ -0,0 +1,30 @@
++<?php
++	App::uses('BlowfishPasswordHasher', 'Controller/Component/Auth');
++	class User extends AppModel
++	{
++		 
++	
++		public $hasMany = array('Review','Comment',
++		'MessageSent' => array(
++            'className' => 'Message',
++            'foreignKey' => 'from_user'),
++        'MessageReceived' => array(
++            'className' => 'Message',
++            'foreignKey' => 'user_id'));
++		public $validate = array(
++	        'username' => array('rule' => 'notEmpty'),
++	        'password' => array('rule' => 'notEmpty'));
++	        
++		public function beforeSave($options = array()) {
++		    if (isset($this->data[$this->alias]['password'])) {
++		        $passwordHasher = new BlowfishPasswordHasher();
++		        $this->data[$this->alias]['password'] = $passwordHasher->hash(
++		            $this->data[$this->alias]['password']
++		        );
++		    }
++		    return true;
++		}
++
++		
++	}
++?>
+diff --git a/app/View/Comments/add.ctp b/app/View/Comments/add.ctp
+new file mode 100644
+index 0000000..e3004fb
+--- /dev/null
++++ b/app/View/Comments/add.ctp
+@@ -0,0 +1,6 @@
++<h1>Add Comment</h1>
++<?php
++echo $this->Form->create('Comment');
++echo $this->Form->input('body', array('rows' => '3'));
++echo $this->Form->end('Save Comment');
++?>
+\ No newline at end of file
+diff --git a/app/View/Comments/edit.ctp b/app/View/Comments/edit.ctp
+new file mode 100644
+index 0000000..f4ed5f3
+--- /dev/null
++++ b/app/View/Comments/edit.ctp
+@@ -0,0 +1,8 @@
++<h1>Edit Comment</h1>
++<?php
++echo $this->Form->create('Comment');
++echo $this->Form->input('title');
++echo $this->Form->input('body', array('rows' => '3'));
++echo $this->Form->input('id', array('type' => 'hidden'));
++echo $this->Form->end('Save Comment');
++?>
+\ No newline at end of file
+diff --git a/app/View/Comments/index.ctp b/app/View/Comments/index.ctp
+new file mode 100644
+index 0000000..15c5adc
+--- /dev/null
++++ b/app/View/Comments/index.ctp
+@@ -0,0 +1,3 @@
++<?php
++
++?>
+\ No newline at end of file
+diff --git a/app/View/Messages/add.ctp b/app/View/Messages/add.ctp
+new file mode 100644
+index 0000000..7be1e57
+--- /dev/null
++++ b/app/View/Messages/add.ctp
+@@ -0,0 +1,7 @@
++<h1>Send Message</h1>
++<?php
++echo $this->Form->create('Message');
++echo $this->Form->input('title');
++echo $this->Form->input('body', array('rows' => '3'));
++echo $this->Form->end('Save Message');
++?>
+\ No newline at end of file
+diff --git a/app/View/Messages/delete.ctp b/app/View/Messages/delete.ctp
+new file mode 100644
+index 0000000..15c5adc
+--- /dev/null
++++ b/app/View/Messages/delete.ctp
+@@ -0,0 +1,3 @@
++<?php
++
++?>
+\ No newline at end of file
+diff --git a/app/View/Messages/index.ctp b/app/View/Messages/index.ctp
+new file mode 100644
+index 0000000..5a9f330
+--- /dev/null
++++ b/app/View/Messages/index.ctp
+@@ -0,0 +1,31 @@
++<?php
++		echo $this->Html->link('<--Back to All Reviews',array('controller'=>'reviews','action'=>'index'));
++		echo "<br>Logged in as $username <br>";
++		echo $this->Html->link('Logout',array('controller' => 'users','action' => 'logout'));
++		echo '<br>';
++?>
++	
++		<table>
++	<tr>
++		<th>Title</th>
++		<th>From</th>
++		<th>Options</th>
++		<th>Created</th>
++		
++	</tr>
++	<?php  foreach($messages as $message): ?>
++	<tr>
++		<td>
++            <?php echo $this->Html->link($message['Message']['title'],
++				array('controller' => 'messages', 'action' => 'view', $message['Message']['id'])); ?>
++        </td>
++        <td><?php echo $message['Sender']['username']; ?></td>
++        <td><?php echo $this->Html->link('Delete',array('controller'=>'messages','action' => 'delete',$message['Message']['id'])); 
++        		echo " ".$this->Html->link('Reply',array('controller'=>'messages','action'=>'add',$message['Sender']['id']));
++        ?></td>
++        <td><?php echo $message['Message']['created']; ?></td>
++    </tr>
++    <?php endforeach; ?>
++    
++    <?php unset($messages); ?>
++</table>
+diff --git a/app/View/Messages/view.ctp b/app/View/Messages/view.ctp
+new file mode 100644
+index 0000000..3ac8d91
+--- /dev/null
++++ b/app/View/Messages/view.ctp
+@@ -0,0 +1,8 @@
++<h1><?php echo h($message['Message']['title']); ?></h1>
++
++<p><small>Created: <?php echo $message['Message']['created']; ?></small></p>
++<p><?php echo "From: ".$message['Message']['from_user']." <br>"; ?></p>
++
++<p><?php echo h($message['Message']['body']); ?></p>
++<p><?php echo $this->Html->link('Reply',array('controller'=>'messages','action'=>'add',$message['Sender']['id'])); ?></p>
++
+diff --git a/app/View/Reviews/add.ctp b/app/View/Reviews/add.ctp
+new file mode 100644
+index 0000000..e4de61c
+--- /dev/null
++++ b/app/View/Reviews/add.ctp
+@@ -0,0 +1,9 @@
++<h1>Add Review</h1>
++<?php
++echo $this->Form->create('Review');
++echo $this->Form->input('title');
++echo $this->Form->input('media');
++echo $this->Form->input('rating');
++echo $this->Form->input('body', array('rows' => '3'));
++echo $this->Form->end('Save Review');
++?>
+\ No newline at end of file
+diff --git a/app/View/Reviews/edit.ctp b/app/View/Reviews/edit.ctp
+new file mode 100644
+index 0000000..c269584
+--- /dev/null
++++ b/app/View/Reviews/edit.ctp
+@@ -0,0 +1,8 @@
++<h1>Edit Post</h1>
++<?php
++echo $this->Form->create('Review');
++echo $this->Form->input('title');
++echo $this->Form->input('body', array('rows' => '3'));
++echo $this->Form->input('id', array('type' => 'hidden'));
++echo $this->Form->end('Save Review');
++?>
+\ No newline at end of file
+diff --git a/app/View/Reviews/index.ctp b/app/View/Reviews/index.ctp
+new file mode 100644
+index 0000000..acf3a36
+--- /dev/null
++++ b/app/View/Reviews/index.ctp
+@@ -0,0 +1,48 @@
++<h1> Reviews </h1>
++<?php 	if($userid)
++		{
++			echo "Logged in as $username <br>" ;
++			echo $this->Html->link('Logout',array('controller' => 'users','action' => 'logout'));
++			echo '<br>';
++			echo $this->Html->link('View Messages',array('controller'=>'messages','action'=>'index'));
++			echo '<br>';
++		}
++		else
++		{
++			echo $this->Html->link('Login', array('controller' => 'users', 'action' => 'login'))." or ";
++			echo $this->Html->link('Create New User', array('controller' => 'users', 'action' => 'add'));
++		}
++		
++?>
++<br>
++
++
++<table>
++	<tr>
++		
++		<th>Title</th>
++		<th>By</th>
++		<th>Rating</th>
++		<th>Media</th>
++		<th>Options</th>
++		<th>Created</th>
++	</tr>
++	<?php foreach($reviews as $review): ?>
++	<tr>
++		<td>
++            <?php  echo $this->Html->link($review['Review']['title'],
++				array('controller' => 'reviews', 'action' => 'view', $review['Review']['id'])); ?>
++        </td>
++        <td><?php echo $review['User']['username'];?></td>
++        <td><?php echo $review['Review']['rating'];?></td>
++        <td><?php echo $review['Review']['media'];?></td>
++        <td><?php echo $this->Html->link('Edit',array('controller' => 'reviews','action' => 'edit',$review['Review']['id']));
++        			echo " ".$this->Html->link('Delete',array('controller' => 'reviews','action' => 'delete',$review['Review']['id']));?></td>
++        <td><?php echo $review['Review']['created']; ?></td>
++    </tr>
++    <?php endforeach; ?>
++    
++    <?php unset($review); ?>
++</table>
++<?php echo $this->Html->link('Add Review', array('controller' => 'reviews', 'action' => 'add')); ?>
++
+diff --git a/app/View/Reviews/view.ctp b/app/View/Reviews/view.ctp
+new file mode 100644
+index 0000000..f68d087
+--- /dev/null
++++ b/app/View/Reviews/view.ctp
+@@ -0,0 +1,26 @@
++<p><?php echo $this->Html->link('<--Back To All Reviews',array('controller'=>'reviews','action'=>'index'));?></p>
++<h2><?php echo h($review['Review']['title']); ?></h1>
++
++<p><small>Created: <?php echo $review['Review']['created']; ?></small></p>
++<p>By: <?php echo $review['User']['username'];?></p>
++<p>Rating: <?php echo $review['Review']['rating'];?></p>
++<p>Media: <?php echo $review['Review']['media'];?></p>
++<p><?php echo h($review['Review']['body']); ?></p>
++<br>
++<p><?php echo $this->Html->link('Send Message',array('controller' => 'messages','action' => 'add',$review['User']['id']));?></p>
++<br>
++<h1>Comments:</h2>
++<br>
++<?php 
++	
++	foreach($review['Comment'] as $comment)
++	{
++		echo $comment['body']."<br>";
++		echo "<p> By: ".$comment['username']."</p>";
++		echo $this->Html->link('Edit',array('controller'=>'comments','action'=>'edit',$comment['id'],$review['Review']['id']));
++		echo " ".$this->Html->link('Delete',array('controller'=>'comments','action'=>'delete',$comment['id'],$review['Review']['id']));
++		echo "<br><br>";
++	}
++?>
++<br>
++<p><?php echo $this->Html->link('Add Comment',array('controller' => 'comments','action' => 'add',$review['Review']['id']));?></p>
+\ No newline at end of file
+diff --git a/app/View/Users/add.ctp b/app/View/Users/add.ctp
+new file mode 100644
+index 0000000..b0ef94c
+--- /dev/null
++++ b/app/View/Users/add.ctp
+@@ -0,0 +1,6 @@
++<!-- app/View/Users/add.ctp -->
++
++<?php echo $this->Form->create('User');
++    echo $this->Form->input('username');
++    echo $this->Form->input('password');
++	echo $this->Form->end('Create User'); ?>
+\ No newline at end of file
+diff --git a/app/View/Users/index.ctp b/app/View/Users/index.ctp
+new file mode 100644
+index 0000000..ce9b195
+--- /dev/null
++++ b/app/View/Users/index.ctp
+@@ -0,0 +1,34 @@
++<?php
++	foreach($users as $user) {
++		print_r($user);
++		echo "<br />";
++	}
++?>
++<h1>Select a User</h1>
++
++<?php
++    echo $this->Html->link('Create New User', array('controller' => 'users', 'action' => 'add'));
++?>
++
++<table>
++    <tr>
++        <th>Id</th>
++        <th>Username</th>
++	<th>Password</th>
++	<th>Created</th>
++    </tr>
++
++    <?php foreach ($users as $user): ?>
++    <tr>
++        <td><?php echo $user['User']['id']; ?></td>
++        <td>
++            <?php echo $user['User']['username']; ?>
++        </td>
++        <td>
++            <?php echo $user['User']['password']; ?>
++        </td>
++        <td><?php echo $user['User']['created']; ?></td>
++    </tr>
++    <?php endforeach; ?>
++    <?php unset($user); ?>
++</table>
+\ No newline at end of file
+diff --git a/app/View/Users/login.ctp b/app/View/Users/login.ctp
+new file mode 100644
+index 0000000..3741b53
+--- /dev/null
++++ b/app/View/Users/login.ctp
+@@ -0,0 +1,13 @@
++<div class="users form">
++<?php echo $this->Session->flash('auth'); ?>
++<?php echo $this->Form->create('User'); ?>
++    <fieldset>
++        <legend>
++            <?php echo __('Please enter your username and password'); ?>
++        </legend>
++        <?php echo $this->Form->input('username');
++        echo $this->Form->input('password');
++    ?>
++    </fieldset>
++<?php echo $this->Form->end(__('Login')); ?>
++</div>
+\ No newline at end of file
+diff --git a/app/View/Users/messages.ctp b/app/View/Users/messages.ctp
+new file mode 100644
+index 0000000..412238a
+--- /dev/null
++++ b/app/View/Users/messages.ctp
+@@ -0,0 +1,31 @@
++<?php
++	if($username)
++	{
++		echo "Logged in as $username <br>";
++		echo $this->Html->link('Logout',array('controller' => 'users','action' => 'logout'));
++		echo '<br>';
++		
++	}
++?>
++	
++		<table>
++	<tr>
++		<th>Title</th>
++		<th>From</th>
++		<th>Options</th>
++		<th>Created</th>
++	</tr>
++	<?php foreach($messages as $message): ?>
++	<tr>
++		<td>
++            <?php echo $this->Html->link($message['title'],
++				array('controller' => 'messages', 'action' => 'view', $message['id'])); ?>
++        </td>
++        <td><?php echo $message['from_user']; ?></td>
++        <td><?php echo $this->Html->link('Delete',array('controller'=>'messages','action' => 'delete',$message['id'])); ?></td>
++        <td><?php echo $message['created']; ?></td>
++    </tr>
++    <?php endforeach; ?>
++    
++    <?php unset($review); ?>
++</table>
+diff --git a/app/webroot/.htaccess b/app/webroot/.htaccess
+index cd08045..8175890 100644
+--- a/app/webroot/.htaccess
++++ b/app/webroot/.htaccess
+@@ -1,6 +1,6 @@
+ <IfModule mod_rewrite.c>
+     RewriteEngine On
+-    RewriteBase /~YOUR_PITT_ID/PATH/TO/CAKEPHP
++    RewriteBase /~cnc34/cakephp
+     RewriteCond %{REQUEST_FILENAME} !-d
+     RewriteCond %{REQUEST_FILENAME} !-f
+     RewriteRule ^ index.php [L]
+diff --git a/db_setup.sql b/db_setup.sql
+new file mode 100644
+index 0000000..3565869
+--- /dev/null
++++ b/db_setup.sql
+@@ -0,0 +1,58 @@
++USE cnc34db;
++
++DROP TABLE IF EXISTS users;
++DROP TABLE IF EXISTS reviews;
++DROP TABLE IF EXISTS comments;
++DROP TABLE IF EXISTS messages;
++
++CREATE TABLE users(
++	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
++	username VARCHAR(50),
++	password TEXT,
++	created DATETIME,
++	modified DATETIME
++);
++
++CREATE TABLE reviews(
++	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
++	user_id INT UNSIGNED,
++	title VARCHAR(50),
++	body TEXT,
++	rating INT UNSIGNED,
++	media TEXT,
++	created DATETIME,
++	modified DATETIME
++);
++
++CREATE TABLE comments(
++	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
++	user_id INT UNSIGNED,
++	review_id INT UNSIGNED,
++	title VARCHAR(50),
++	body TEXT,
++	username VARCHAR(50),
++	created DATETIME,
++	modified DATETIME
++);
++
++CREATE TABLE messages(
++	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
++	user_id INT UNSIGNED,
++	from_user INT UNSIGNED,
++	title VARCHAR(50),
++	body TEXT,
++	created DATETIME,
++	modified DATETIME
++);
++
++SHOW TABLES;
++
++DESCRIBE users;
++DESCRIBE reviews;
++DESCRIBE comments;
++DESCRIBE messages;
++
++TRUNCATE users;
++TRUNCATE reviews;
++TRUNCATE comments;
++TRUNCATE messages;
+-- 
+1.7.1
+
+
+From dce793b292454ff5b1deb60c48466c83a92b1553 Mon Sep 17 00:00:00 2001
+From: Cody Collins <cnc34@pitt.edu>
+Date: Fri, 28 Mar 2014 21:05:22 -0400
+Subject: [PATCH 2/2] Improved the review edit
+
+---
+ app/View/Reviews/edit.ctp |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/app/View/Reviews/edit.ctp b/app/View/Reviews/edit.ctp
+index c269584..a00e218 100644
+--- a/app/View/Reviews/edit.ctp
++++ b/app/View/Reviews/edit.ctp
+@@ -2,7 +2,9 @@
+ <?php
+ echo $this->Form->create('Review');
+ echo $this->Form->input('title');
++echo $this->Form->input('media');
++echo $this->Form->input('rating');
+ echo $this->Form->input('body', array('rows' => '3'));
+ echo $this->Form->input('id', array('type' => 'hidden'));
+ echo $this->Form->end('Save Review');
+-?>
+\ No newline at end of file
++?>
+-- 
+1.7.1
+
